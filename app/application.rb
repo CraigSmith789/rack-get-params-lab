@@ -1,7 +1,12 @@
+require 'pry'
 class Application
-
+  # Create a new class array called @@cart to hold any items in your cart
+  # Create a new route called /cart to show the items in your cart
+  # Create a new route called /add that takes in a GET param with the key item. This should check to 
+  # see if that item is in @@items and then add it to the cart if it is. Otherwise give an error
+  @@cart = []
   @@items = ["Apples","Carrots","Pears"]
-
+  
   def call(env)
     resp = Rack::Response.new
     req = Rack::Request.new(env)
@@ -13,6 +18,24 @@ class Application
     elsif req.path.match(/search/)
       search_term = req.params["q"]
       resp.write handle_search(search_term)
+
+    elsif req.path.match(/cart/)
+      if @@cart == []
+       resp.write "Your cart is empty"
+      end
+      # resp.write "#{@@cart}\n"
+      resp.write @@cart.join("\n")
+
+    elsif req.path.match(/add/)
+      item = req.params["item"]
+      # binding.pry
+      if @@items.include?(item)
+        resp.write "added #{item}"
+        @@cart<<item
+        # binding.pry
+      else 
+        resp.write "We don't have that item"
+      end
     else
       resp.write "Path Not Found"
     end
